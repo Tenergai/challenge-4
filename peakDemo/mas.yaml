@@ -1,0 +1,17 @@
+# mas.yaml
+defaults:
+    domain: mas.gecad.isep.ipp.pt
+    log_level: DEBUG
+agents:
+    agent_sensor1:
+        resource: ag1
+        file: agent_sensor1.py
+    agent_sensor2:
+        resource: ag2
+        file: agent_sensor2.py
+    agent_manager:
+        resource: am
+        file: agent_manager.py
+    agent_weather:
+        resource: aw
+        file: agent_weather.py
