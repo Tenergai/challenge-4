@@ -7,7 +7,7 @@ BROKER = 'broker.emqx.io'
 PORT = 1883
 TOPIC = "python/mqtt"
 # Generate a Client ID with the subscribe prefix.
-CLIEND_ID = f'subscribe-agent1'
+CLIEND_ID = f'subscribe-agent4'
 # username = 'emqx'
 # password = 'public'
 # CLIENT=None
@@ -32,16 +32,16 @@ def on_message(client, userdata, msg):
     global last_reading
     last_reading = str(msg.payload)
 
-class agent_sensor1(Agent):
+class agent_sensor2(Agent):
     class SendSensorData(PeriodicBehaviour):
         async def run(self):
             while self.client.loop() == 0:
                 time.sleep(1) 
                 if last_reading is not None:
-                    #random_float = random.uniform(1, 10)
+                #random_float = random.uniform(1, 10)
                     msg = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                     msg.set_metadata("performative", "inform")  # Set the "inform" FIPA performative
-                    msg.body = "Sensor1-%f" % last_reading
+                    msg.body = "Sensor4-%f" % last_reading
                     # print("My own id",self.agent.jid)
                     await self.send(msg)
                     # await self.agent.stop()
