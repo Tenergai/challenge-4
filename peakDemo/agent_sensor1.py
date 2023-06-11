@@ -14,6 +14,6 @@ class agent_sensor1(Agent):
             # await self.agent.stop()
 
     async def setup(self):
-        period = 2
+        period = 1
         behavior = self.SendSensorData(period=period)
         self.add_behaviour(behavior)
