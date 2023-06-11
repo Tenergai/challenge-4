@@ -22,7 +22,13 @@ class agent_manager(Agent):
             agent_manager.sensor_data[count_key] = 1
             agent_manager.sensor_data[average_key] = sensor_value
         else:
-            agent_manager.sensor_data[sensor_name].append(sensor_value)
+            if agent_manager.sensor_data[count_key] >= 60:
+                agent_manager.sensor_data[sensor_name][:-1] = agent_manager.sensor_data[sensor_name][1:]
+                agent_manager.sensor_data[sensor_name].append(sensor_value)
+
+            else:
+                agent_manager.sensor_data[sensor_name].append(sensor_value)
+
             agent_manager.sensor_data[count_key] += 1
             agent_manager.sensor_data[average_key] = agent_manager.calculate_running_average(sensor_value,
                                                                                              agent_manager.sensor_data[
