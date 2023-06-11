@@ -47,7 +47,7 @@ class agent_sensor1(Agent):
                     # await self.agent.stop()
 
     async def setup(self):
-        period = 2
+        period = 1
         self.client = connect_mqtt()
         self.client.subscribe(TOPIC)
         self.client.on_message = on_message
