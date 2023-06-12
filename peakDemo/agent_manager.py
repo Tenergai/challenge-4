@@ -1,6 +1,8 @@
 # agent_manager.py
 from peak import Agent, OneShotBehaviour, CyclicBehaviour, Message
 from spade.template import Template
+import json
+import random
 
 
 class agent_manager(Agent):
@@ -51,7 +53,7 @@ class agent_manager(Agent):
         print(f"{sensor_name} is producing less than expected!")
         print("Retrieving weather data via request")
         weather_request = Message(to=f"agent_weather@{agent_domain}/aw")
-        weather_request.body = "AgentManager-Request"
+        weather_request.body = f"AgentManager-Request,SensorName-{sensor_name}"
         weather_request.set_metadata("performative", "inform")
         return weather_request
 
@@ -69,7 +71,7 @@ class agent_manager(Agent):
                 sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
                 agent_manager.update_values(sensor_name, sensor_value)
 
-                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
+                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]) or True:
                     weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
                     await self.send(weather_request)
             else:
@@ -94,15 +96,35 @@ class agent_manager(Agent):
                 if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
                     weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
                     await self.send(weather_request)
+
             else:
                 print("Did not received any message after 10 seconds")
 
     class ReceiveMessageWeatherAgent(CyclicBehaviour):
+        def verify_weather_is_good(self, weather_data):
+            return random.random() < 0.75
+
+        def drone_management(self, weather_data, sensor_at_fault):
+            if self.verify_weather_is_good(weather_data):
+                print(f"Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
+                # drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
+                # drone_message.set_metadata("performative", "inform")
+                # drone_message.body = f"Check-{sensor_at_fault}"
+                # await self.send()
+                return True
+            else:
+                print(f"Attributing bad performance of {sensor_at_fault} to bad weather conditions")
+                return False
+
         async def run(self):
             msg = await self.receive(10)
             if msg:
                 print(f"Manager - Received current weather status from: {msg.sender}")
-                print(f"{msg.body}")
+                data_dict = json.loads(msg.body)
+                agent_manager.weather_data = data_dict
+                # print(data_dict)
+                sensor_at_fault = data_dict["sensor_at_fault"]
+                agent_manager.drone_management(self, msg.body, sensor_at_fault)
 
     async def setup(self):
         receiveMessageSensor1 = self.ReceiveMessageSensor1()
