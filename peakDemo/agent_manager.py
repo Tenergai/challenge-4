@@ -124,7 +124,7 @@ class agent_manager(Agent):
                 agent_manager.weather_data = data_dict
                 # print(data_dict)
                 sensor_at_fault = data_dict["sensor_at_fault"]
-                agent_manager.drone_management(self, msg.body, sensor_at_fault)
+                self.drone_management(msg.body, sensor_at_fault)
 
     async def setup(self):
         receiveMessageSensor1 = self.ReceiveMessageSensor1()
