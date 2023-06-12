@@ -5,7 +5,7 @@ from paho.mqtt import client as mqtt_client
 import time
 BROKER = 'broker.emqx.io'
 PORT = 1883
-TOPIC = "python/mqtt"
+TOPIC = "report/agent2"
 # Generate a Client ID with the subscribe prefix.
 CLIEND_ID = f'subscribe-agent2'
 # username = 'emqx'
