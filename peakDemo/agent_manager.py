@@ -102,6 +102,11 @@ class agent_manager(Agent):
 
     class ReceiveMessageWeatherAgent(CyclicBehaviour):
         def verify_weather_is_good(self, weather_data):
+            temperature_c = float(weather_data["TemperatureC"])
+            solar_radiation_m2 = float(weather_data["SolarRadiationWatts_m2"])
+            print(f"Temperature: {temperature_c}")
+            print(f"Solar Radiation: {solar_radiation_m2}")
+
             return random.random() < 0.75
 
         def drone_management(self, weather_data, sensor_at_fault):
@@ -124,7 +129,7 @@ class agent_manager(Agent):
                 agent_manager.weather_data = data_dict
                 # print(data_dict)
                 sensor_at_fault = data_dict["sensor_at_fault"]
-                self.drone_management(msg.body, sensor_at_fault)
+                self.drone_management(data_dict, sensor_at_fault)
 
     async def setup(self):
         receiveMessageSensor1 = self.ReceiveMessageSensor1()
