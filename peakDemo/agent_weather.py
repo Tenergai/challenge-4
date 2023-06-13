@@ -24,21 +24,21 @@ class agent_weather(Agent):
                 
                 line = self.meteorologia.iloc[self.last_index]
                 weather_data = {
-                    'DateTime': line['hour'],
-                    'Generated power': line['generated_power'],
-                    'TemperatureC': line['temperatureC'],
-                    'DewpointC': line['dewpointC'],
-                    'PressurehPa': line['pressurehPa'],
-                    'WindDirectionDegrees': line['wind_direction_degrees'],
-                    'WindSpeedKMH': line['wind_speed_KMH'],
-                    'WindSpeedGustKMH': line['wind_speed_gustKMH'],
-                    'Humidity': line['Humidity'],
-                    'HourlyPrecipMM': line['hourly_precipMM'],
-                    'dailyrainMM': line['daily_rainMM'],
-                    'SolarRadiationWatts_m2': line['solar_radiation_Watts_m2']
+                    'DateTime': int(line['hour']),
+                    'Generated power': int(line['generated_power']),
+                    'TemperatureC': int(line['temperatureC']),
+                    'DewpointC': int(line['dewpointC']),
+                    'PressurehPa': int(line['pressurehPa']),
+                    'WindDirectionDegrees': int(line['wind_direction_degrees']),
+                    'WindSpeedKMH': int(line['wind_speed_KMH']),
+                    'WindSpeedGustKMH': int(line['wind_speed_gustKMH']),
+                    'Humidity': int(line['Humidity']),
+                    'HourlyPrecipMM': int(line['hourly_precipMM']),
+                    'dailyrainMM': int(line['daily_rainMM']),
+                    'SolarRadiationWatts_m2': int(line['solar_radiation_Watts_m2']),
+                    'sensor_at_fault': fault_sensor
                 }
                 self.last_index += 1
-                
                 weather_report.body = json.dumps(weather_data)
                 await self.send(weather_report)
                 
