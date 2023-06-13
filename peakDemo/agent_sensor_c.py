@@ -32,7 +32,7 @@ def on_message(client, userdata, msg):
     last_reading = str(msg.payload)
 
 
-class agent_sensorC(Agent):
+class agent_sensor_c(Agent):
 
     class SendSensorData(PeriodicBehaviour):                
            
