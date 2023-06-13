@@ -11,7 +11,7 @@ port = 1883
 client_id = f'subscribe-{random.randint(0, 100)}'
 # username = 'emqx'
 # password = 'public'
-topic ="report/agent4"
+# topic ="report/agent4"
 
 # class MQTTSubscriber:
 #     def __init__(self, topic):
@@ -63,7 +63,7 @@ def run():
     client = mqtt_client.Client()
     client.on_connect = on_connect
     client.connect(broker, port)
-    client.subscribe(topic)
+    # client.subscribe(topic)
     client.on_message = on_message
 
 if __name__ == "__main__":
