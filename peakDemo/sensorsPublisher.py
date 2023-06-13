@@ -5,7 +5,7 @@ import time
 
 from paho.mqtt import client as mqtt_client
 import concurrent.futures
-
+from threading import Thread
 
 broker = 'broker.emqx.io'
 port = 1883
@@ -61,14 +61,16 @@ class MQTTPublisher:
 if __name__ == '__main__':
     publishers = []
     topics = ["report/agent1", "report/agent2", "report/agent3", "report/agent4", "report/agentC"]
+    for topic in topics:
+        client_id = client_id_base + str(random.randint(0, 1000))
+        publisher = MQTTPublisher(client_id, topic)
+        publishers.append(publisher)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        for i in range(5):
-            client_id = client_id_base + str(random.randint(0, 1000))
-            topic = topics[i]
-            publisher = MQTTPublisher(client_id, topic)
-            publishers.append(publisher)
-            executor.submit(publisher.run)
-
+    threads = []
     for publisher in publishers:
-        publisher.join()
+        thread = Thread(target=publisher.run)
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()

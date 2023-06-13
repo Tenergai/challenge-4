@@ -4,7 +4,7 @@ from paho.mqtt import client as mqtt_client
 import time
 BROKER = 'broker.emqx.io'
 PORT = 1883
-TOPIC = "python/mqtt"
+TOPIC = "report/agentC"
 # Generate a Client ID with the subscribe prefix.
 CLIEND_ID = f'subscribe-agentc'
 # username = 'emqx'
@@ -32,7 +32,7 @@ def on_message(client, userdata, msg):
     last_reading = str(msg.payload)
 
 
-class agent_sensor2(Agent):
+class agent_sensorC(Agent):
 
     class SendSensorData(PeriodicBehaviour):                
            
