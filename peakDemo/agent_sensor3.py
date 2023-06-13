@@ -5,9 +5,9 @@ from paho.mqtt import client as mqtt_client
 import time
 BROKER = 'broker.emqx.io'
 PORT = 1883
-TOPIC = "report/agent2"
+TOPIC = "report/agent3"
 # Generate a Client ID with the subscribe prefix.
-CLIEND_ID = f'subscribe-agent2'
+CLIEND_ID = f'subscribe-agent3'
 # username = 'emqx'
 # password = 'public'
 # CLIENT=None
@@ -32,16 +32,16 @@ def on_message(client, userdata, msg):
     global last_reading
     last_reading = str(msg.payload)
 
-class agent_sensor2(Agent):
+class agent_sensor3(Agent):
     class SendSensorData(PeriodicBehaviour):
         async def run(self):
             while self.client.loop() == 0:
                 time.sleep(1) 
                 if last_reading is not None:
-                    #random_float = random.uniform(1, 10)
+                    # random_float = random.uniform(1, 10)
                     msg = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                     msg.set_metadata("performative", "inform")  # Set the "inform" FIPA performative
-                    msg.body = "Sensor2-%f" % last_reading
+                    msg.body = "Sensor3-%f" % last_reading
                     # print("My own id",self.agent.jid)
                     await self.send(msg)
                     # await self.agent.stop()
@@ -53,3 +53,4 @@ class agent_sensor2(Agent):
         self.client.on_message = on_message
         behavior = self.SendSensorData(period=period)
         self.add_behaviour(behavior)
+

@@ -5,22 +5,13 @@ defaults:
 agents:
     agent_sensor1:
         resource: ag1
-        file: agent_sensor1.py
+        file: agent_sensor1_test.py
     agent_sensor2:
         resource: ag2
-        file: agent_sensor2.py
-    agent_sensor3:
-        resource: ag3
-        file: agent_sensor3.py
-    agent_sensor4:
-        resource: ag4
-        file: agent_sensor4.py
+        file: agent_sensor2_test.py
     agent_manager:
         resource: am
         file: agent_manager.py
     agent_weather:
         resource: aw
         file: agent_weather.py
-    agent_control:
-        resource: ac
-        file: agent_sensor_c.py

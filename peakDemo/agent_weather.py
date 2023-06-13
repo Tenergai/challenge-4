@@ -2,7 +2,7 @@
 from peak import Agent, OneShotBehaviour, CyclicBehaviour, Message
 from spade.template import Template
 import pandas as pd
-
+import json
 class agent_weather(Agent):
     class ReceiveMessage(CyclicBehaviour):
         async def on_start(self):
@@ -16,6 +16,9 @@ class agent_weather(Agent):
             if msg:
                 print("Weather - ReceiveMessage")
                 print(f"Weather - {msg.sender} sent me a message: '{msg.body}")
+                split_values = msg.body.split(',')
+                fault_sensor = split_values[1].split("-")[1]
+                print("fault sensor: ", fault_sensor)
                 weather_report = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                 weather_report.set_metadata("performative", "inform")
                 
@@ -36,7 +39,7 @@ class agent_weather(Agent):
                 }
                 self.last_index += 1
                 
-                weather_report.body = str(weather_data)
+                weather_report.body = json.dumps(weather_data)
                 await self.send(weather_report)
                 
                 # weather_response = await self.receive(5)
