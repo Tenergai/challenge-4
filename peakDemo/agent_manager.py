@@ -1,5 +1,5 @@
 # agent_manager.py
-from peak import Agent, OneShotBehaviour, CyclicBehaviour, Message
+from peak import Agent, OneShotBehaviour, CyclicBehaviour, PeriodicBehaviour, Message
 from spade.template import Template
 import json
 import random
@@ -59,7 +59,8 @@ class agent_manager(Agent):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
         agent_manager.update_values(sensor_name, sensor_value)
-
+        # TODO
+        # Grab the current sensor average, and check if it's less than 10% of agent control current average
         if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]) or True:
             weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
             await self.send(weather_request)
@@ -83,14 +84,7 @@ class agent_manager(Agent):
         async def run(self):
             msg = await self.receive(10)
             if msg:
-                print(f"Sensor2 - {msg.sender} sent me a message: '{msg.body}'")
-                sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
-                agent_manager.update_values(sensor_name, sensor_value)
-
-                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
-                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-                    await self.send(weather_request)
-
+                await agent_manager.handle_sensor_message(self, msg, "Sensor2")
             else:
                 print("Sensor2 - Did not received any message after 10 seconds")
 
@@ -98,14 +92,7 @@ class agent_manager(Agent):
         async def run(self):
             msg = await self.receive(10)
             if msg:
-                print(f"Sensor3 - {msg.sender} sent me a message: '{msg.body}'")
-                sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
-                agent_manager.update_values(sensor_name, sensor_value)
-
-                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
-                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-                    await self.send(weather_request)
-
+                await agent_manager.handle_sensor_message(self, msg, "Sensor3")
             else:
                 print("Sensor3 - Did not received any message after 10 seconds")
 
@@ -113,14 +100,7 @@ class agent_manager(Agent):
         async def run(self):
             msg = await self.receive(10)
             if msg:
-                print(f"Sensor4 - {msg.sender} sent me a message: '{msg.body}'")
-                sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
-                agent_manager.update_values(sensor_name, sensor_value)
-
-                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
-                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-                    await self.send(weather_request)
-
+                await agent_manager.handle_sensor_message(self, msg, "Sensor4")
             else:
                 print("Sensor4 - Did not received any message after 10 seconds")
 
@@ -128,18 +108,13 @@ class agent_manager(Agent):
         async def run(self):
             msg = await self.receive(10)
             if msg:
-                print(f"SensorControl - {msg.sender} sent me a message: '{msg.body}'")
-                sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
-                agent_manager.update_values(sensor_name, sensor_value)
-
-                if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]):
-                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-                    await self.send(weather_request)
-
+                await agent_manager.handle_sensor_message(self, msg, "SensorControl")
             else:
                 print("SensorControl - Did not received any message after 10 seconds")
 
     class ReceiveMessageWeatherAgent(CyclicBehaviour):
+        # TODO
+        # Finish this method
         def verify_weather_is_good(self, weather_data):
             temperature_c = float(weather_data["TemperatureC"])
             solar_radiation_m2 = float(weather_data["SolarRadiationWatts_m2"])
@@ -147,6 +122,8 @@ class agent_manager(Agent):
 
             return random.random() < 0.75
 
+        # TODO
+        # Finish this method
         def drone_management(self, weather_data, sensor_at_fault):
             if self.verify_weather_is_good(weather_data):
                 print(f"Weather - Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
@@ -169,7 +146,11 @@ class agent_manager(Agent):
                 sensor_at_fault = data_dict["sensor_at_fault"]
                 self.drone_management(data_dict, sensor_at_fault)
             else:
-                print("Weather - Did not received any message from Agent Weather after 10 seconds")
+                print("Weather - Did not receive any message from Agent Weather after 10 seconds")
+
+    class PrintDictionaryBehaviour(PeriodicBehaviour):
+        async def run(self):
+            print(agent_manager.sensor_data)
 
     async def setup(self):
         receiveMessageSensor1 = self.ReceiveMessageSensor1()
@@ -209,3 +190,4 @@ class agent_manager(Agent):
         template_w.sender = f"agent_weather@{domain}/aw"
         template_w.set_metadata("performative", "inform")
         self.add_behaviour(receiveMessageWeatherAgent, template_w)
+        self.add_behaviour(self.PrintDictionaryBehaviour(period=5))
