@@ -10,13 +10,16 @@ class agent_manager(Agent):
     weather_data = dict()
     sensor_data = dict()
 
+    @staticmethod
     def calculate_running_average(new_value, current_average, count):
         return ((current_average * count) + new_value) / (count + 1)
 
+    @staticmethod
     def is_less_than_10_percent(value, average):
         threshold = 0.1 * average
         return value < threshold
 
+    @staticmethod
     def update_values(sensor_name, sensor_value):
         count_key = sensor_name + "_count"
         average_key = sensor_name + "_average"
@@ -41,6 +44,7 @@ class agent_manager(Agent):
                                                                                              agent_manager.sensor_data[
                                                                                                  count_key])
 
+    @staticmethod
     def treat_receive_message_from_sensor(msg):
         split_values = msg.body.split('-')
         sensor_name = split_values[0]
@@ -48,6 +52,7 @@ class agent_manager(Agent):
         average_key = sensor_name + "_average"
         return sensor_name, sensor_value, average_key
 
+    @staticmethod
     def prepare_message_to_weather_agent(sensor_name, agent_domain):
         print(f"{sensor_name} - producing less than expected!")
         weather_request = Message(to=f"agent_weather@{agent_domain}/aw")
@@ -55,6 +60,7 @@ class agent_manager(Agent):
         weather_request.set_metadata("performative", "inform")
         return weather_request
 
+    @staticmethod
     async def handle_sensor_message(self, msg, sensor_name):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
@@ -113,7 +119,7 @@ class agent_manager(Agent):
                 print("SensorControl - Did not received any message after 10 seconds")
 
     class ReceiveMessageWeatherAgent(CyclicBehaviour):
-        # TODO
+        # TODO QUAL É O BOM TEMPO
         # Finish this method
         def verify_weather_is_good(self, weather_data):
             temperature_c = float(weather_data["TemperatureC"])
