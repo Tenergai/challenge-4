@@ -152,42 +152,20 @@ class agent_manager(Agent):
         async def run(self):
             print(agent_manager.sensor_data)
 
-    async def setup(self):
-        receiveMessageSensor1 = self.ReceiveMessageSensor1()
+    def define_behaviour(self, behaviour, agent_name, slash):
         template = Template()
         domain = "mas.gecad.isep.ipp.pt"
         template.to = f"agent_manager@{domain}/am"
-        template.sender = f"agent_sensor1@{domain}/ag1"
+        template.sender = f"{agent_name}@{domain}/{slash}"
         template.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageSensor1, template)
-        receiveMessageSensor2 = self.ReceiveMessageSensor2()
-        template2 = Template()
-        template2.to = f"agent_manager@{domain}/am"
-        template2.sender = f"agent_sensor2@{domain}/ag2"
-        template2.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageSensor2, template2)
-        receiveMessageSensor3 = self.ReceiveMessageSensor3()
-        template3 = Template()
-        template3.to = f"agent_manager@{domain}/am"
-        template3.sender = f"agent_sensor3@{domain}/ag3"
-        template3.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageSensor3, template3)
-        receiveMessageSensor4 = self.ReceiveMessageSensor4()
-        template4 = Template()
-        template4.to = f"agent_manager@{domain}/am"
-        template4.sender = f"agent_sensor4@{domain}/ag4"
-        template4.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageSensor4, template4)
-        receiveMessageSensorControl = self.ReceiveMessageSensorControl()
-        templateC = Template()
-        templateC.to = f"agent_manager@{domain}/am"
-        templateC.sender = f"agent_control@{domain}/ac"
-        templateC.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageSensorControl, templateC)
-        receiveMessageWeatherAgent = self.ReceiveMessageWeatherAgent()
-        template_w = Template()
-        template_w.to = f"agent_manager@{domain}/am"
-        template_w.sender = f"agent_weather@{domain}/aw"
-        template_w.set_metadata("performative", "inform")
-        self.add_behaviour(receiveMessageWeatherAgent, template_w)
+        self.add_behaviour(behaviour, template)
+        
+    async def setup(self):
+        self.define_behaviour(self.ReceiveMessageSensor1(), "agent_sensor1", "ag1")
+        self.define_behaviour(self.ReceiveMessageSensor2(), "agent_sensor2", "ag2")
+        self.define_behaviour(self.ReceiveMessageSensor3(), "agent_sensor3", "ag3")
+        self.define_behaviour(self.ReceiveMessageSensor4(), "agent_sensor4", "ag4")
+        self.define_behaviour(self.ReceiveMessageSensorControl(), "agent_control", "ac")
+        self.define_behaviour(self.ReceiveMessageWeatherAgent(), "agent_weather", "aw")
+        
         self.add_behaviour(self.PrintDictionaryBehaviour(period=5))
