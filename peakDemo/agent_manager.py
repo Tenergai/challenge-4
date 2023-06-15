@@ -6,7 +6,6 @@ import random
 
 
 class agent_manager(Agent):
-    # test_var = "Hello there"
     weather_data = dict()
     sensor_data = dict()
 
@@ -65,11 +64,31 @@ class agent_manager(Agent):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
         agent_manager.update_values(sensor_name, sensor_value)
+        
         # TODO
         # Grab the current sensor average, and check if it's less than 10% of agent control current average
         if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]) or True:
             weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
             await self.send(weather_request)
+
+    class ReceiveMessageSensor(CyclicBehaviour):
+        def __init__(self, name):
+            super().__init__()
+            self.name = name
+        
+        async def run(self):
+            msg = await self.receive(10)
+            if msg:
+                await agent_manager.handle_sensor_message(self, msg, self.name)
+            else:
+                print(self.name, "- Did not received any message after 10 seconds")
+
+        async def on_end(self):
+            # stop agent from behaviour
+            print(self.name, "- I'm closing down, my dictionary:")
+            for key, value in agent_manager.sensor_data.items():
+                print(self.name, "-", key, ":", value)
+            await self.agent.stop()
 
     class ReceiveMessageSensor1(CyclicBehaviour):
         async def run(self):
@@ -167,10 +186,10 @@ class agent_manager(Agent):
         self.add_behaviour(behaviour, template)
         
     async def setup(self):
-        self.define_behaviour(self.ReceiveMessageSensor1(), "agent_sensor1", "ag1")
-        self.define_behaviour(self.ReceiveMessageSensor2(), "agent_sensor2", "ag2")
-        self.define_behaviour(self.ReceiveMessageSensor3(), "agent_sensor3", "ag3")
-        self.define_behaviour(self.ReceiveMessageSensor4(), "agent_sensor4", "ag4")
+        self.define_behaviour(self.ReceiveMessageSensor(name="Sensor1"), "agent_sensor1", "ag1")
+        self.define_behaviour(self.ReceiveMessageSensor(name="Sensor2"), "agent_sensor2", "ag2")
+        self.define_behaviour(self.ReceiveMessageSensor(name="Sensor3"), "agent_sensor3", "ag3")
+        self.define_behaviour(self.ReceiveMessageSensor(name="Sensor4"), "agent_sensor4", "ag4")
         self.define_behaviour(self.ReceiveMessageSensorControl(), "agent_control", "ac")
         self.define_behaviour(self.ReceiveMessageWeatherAgent(), "agent_weather", "aw")
         
