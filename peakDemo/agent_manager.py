@@ -90,45 +90,6 @@ class agent_manager(Agent):
                 print(self.name, "-", key, ":", value)
             await self.agent.stop()
 
-    class ReceiveMessageSensor1(CyclicBehaviour):
-        async def run(self):
-            msg = await self.receive(10)
-            if msg:
-                await agent_manager.handle_sensor_message(self, msg, "Sensor1")
-            else:
-                print("Sensor1 - Did not received any message after 10 seconds")
-
-        async def on_end(self):
-            # stop agent from behaviour
-            print("Sensor1 - I'm closing down, my dictionary:")
-            for key, value in agent_manager.sensor_data.items():
-                print("Sensor1 -", key, ":", value)
-            await self.agent.stop()
-
-    class ReceiveMessageSensor2(CyclicBehaviour):
-        async def run(self):
-            msg = await self.receive(10)
-            if msg:
-                await agent_manager.handle_sensor_message(self, msg, "Sensor2")
-            else:
-                print("Sensor2 - Did not received any message after 10 seconds")
-
-    class ReceiveMessageSensor3(CyclicBehaviour):
-        async def run(self):
-            msg = await self.receive(10)
-            if msg:
-                await agent_manager.handle_sensor_message(self, msg, "Sensor3")
-            else:
-                print("Sensor3 - Did not received any message after 10 seconds")
-
-    class ReceiveMessageSensor4(CyclicBehaviour):
-        async def run(self):
-            msg = await self.receive(10)
-            if msg:
-                await agent_manager.handle_sensor_message(self, msg, "Sensor4")
-            else:
-                print("Sensor4 - Did not received any message after 10 seconds")
-
     class ReceiveMessageSensorControl(CyclicBehaviour):
         async def run(self):
             msg = await self.receive(10)
