@@ -1,15 +1,19 @@
 # agent_manager.py
-from peak import Agent, OneShotBehaviour, CyclicBehaviour, Message
+from aioxmpp import JID
+from peak import Agent, CyclicBehaviour, Message
 from spade.template import Template
 import pandas as pd
 import json
 class agent_weather(Agent):
+    def __init__(self, jid: JID, cid: int = 0, verify_security: bool = False):
+        super().__init__(jid, cid, verify_security)
+        self.meteorologia = pd.read_csv("dataset-final.csv")
+        self.last_index = 0
+
     class ReceiveMessage(CyclicBehaviour):
-        async def on_start(self):
-            #Ler ficheiro metromaria.csv
-            self.meteorologia = pd.read_csv("dataset-final.csv")
-            self.last_index = 0
-            
+        def __init__(self, agent):
+            super().__init__()
+            self.agent = agent
 
         async def run(self):
             msg = await self.receive(10)
@@ -22,7 +26,7 @@ class agent_weather(Agent):
                 weather_report = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                 weather_report.set_metadata("performative", "inform")
                 
-                line = self.meteorologia.iloc[self.last_index]
+                line = self.agent.meteorologia.iloc[self.agent.last_index]
                 weather_data = {
                     'DateTime': int(line['hour']),
                     'Generated power': int(line['generated_power']),
@@ -38,7 +42,7 @@ class agent_weather(Agent):
                     'SolarRadiationWatts_m2': int(line['solar_radiation_Watts_m2']),
                     'sensor_at_fault': fault_sensor
                 }
-                self.last_index += 1
+                self.agent.last_index += 1
                 weather_report.body = json.dumps(weather_data)
                 await self.send(weather_report)
                 
@@ -54,7 +58,7 @@ class agent_weather(Agent):
             await self.agent.stop()
 
     async def setup(self):
-        b = self.ReceiveMessage()
+        b = self.ReceiveMessage(agent=self)
         template = Template()
         domain = "mas.gecad.isep.ipp.pt"
         template.to = f"agent_weather@{domain}/aw"
