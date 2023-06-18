@@ -64,18 +64,22 @@ class agent_manager(Agent):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
         agent_manager.update_values(sensor_name, sensor_value)
-        
-        # TODO
+
         # Grab the current sensor average, and check if it's less than 10% of agent control current average
-        if agent_manager.is_less_than_10_percent(sensor_value, agent_manager.sensor_data[average_key]) or True:
-            weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-            await self.send(weather_request)
+        try:
+            if agent_manager.is_less_than_10_percent(agent_manager.sensor_data[average_key],
+                                                     agent_manager.sensor_data['SensorC_average']):
+                weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
+                # TODO Not sending messages to weather agent
+                await self.send(weather_request)
+        except KeyError:
+            print("Sensor Control isn't filled yet")
 
     class ReceiveMessageSensor(CyclicBehaviour):
         def __init__(self, name):
             super().__init__()
             self.name = name
-        
+
         async def run(self):
             msg = await self.receive(10)
             if msg:
@@ -108,15 +112,13 @@ class agent_manager(Agent):
 
             return random.random() < 0.75
 
-        # TODO
-        # Finish this method
-        def drone_management(self, weather_data, sensor_at_fault):
+        async def drone_management(self, weather_data, sensor_at_fault):
             if self.verify_weather_is_good(weather_data):
                 print(f"Weather - Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
-                # drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
-                # drone_message.set_metadata("performative", "inform")
-                # drone_message.body = f"Check-{sensor_at_fault}"
-                # await self.send()
+                drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
+                drone_message.set_metadata("performative", "inform")
+                drone_message.body = f"Check-{sensor_at_fault}"
+                await self.send()
                 return True
             else:
                 print(f"Weather - Attributing bad performance of {sensor_at_fault} to bad weather conditions")
@@ -145,7 +147,7 @@ class agent_manager(Agent):
         template.sender = f"{agent_name}@{domain}/{slash}"
         template.set_metadata("performative", "inform")
         self.add_behaviour(behaviour, template)
-        
+
     async def setup(self):
         self.define_behaviour(self.ReceiveMessageSensor(name="Sensor1"), "agent_sensor1", "ag1")
         self.define_behaviour(self.ReceiveMessageSensor(name="Sensor2"), "agent_sensor2", "ag2")
@@ -153,5 +155,5 @@ class agent_manager(Agent):
         self.define_behaviour(self.ReceiveMessageSensor(name="Sensor4"), "agent_sensor4", "ag4")
         self.define_behaviour(self.ReceiveMessageSensorControl(), "agent_control", "ac")
         self.define_behaviour(self.ReceiveMessageWeatherAgent(), "agent_weather", "aw")
-        
+
         self.add_behaviour(self.PrintDictionaryBehaviour(period=5))
