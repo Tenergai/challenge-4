@@ -19,6 +19,19 @@ class agent_manager(Agent):
         return value < threshold
 
     @staticmethod
+    def compare_average_against_control_average(value, average):
+        percentage_difference = abs((value - average) / average) * 100
+        print("Value: ", value, " Average: ", average, " Difference: ", percentage_difference)
+        if value < average:
+            print(f"The value is {percentage_difference:.2f}% less than the average.")
+        elif value > average:
+            print(f"The value is {percentage_difference:.2f}% greater than the average.")
+        else:
+            print("The value is equal to the average.")
+
+        return percentage_difference
+
+    @staticmethod
     def update_values(sensor_name, sensor_value):
         count_key = sensor_name + "_count"
         average_key = sensor_name + "_average"
@@ -64,16 +77,17 @@ class agent_manager(Agent):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
         agent_manager.update_values(sensor_name, sensor_value)
-
-        # Grab the current sensor average, and check if it's less than 10% of agent control current average
-        try:
-            if agent_manager.is_less_than_10_percent(agent_manager.sensor_data[average_key],
-                                                     agent_manager.sensor_data['SensorC_average']):
-                weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
-                # TODO Not sending messages to weather agent
-                await self.send(weather_request)
-        except KeyError:
-            print("Sensor Control isn't filled yet")
+        if not msg.sender == "agent_control@mas.gecad.isep.ipp.pt/ac":
+            print("Sender: ", msg.sender, " sender: ", "agent_control@mas.gecad.isep.ipp.pt/ac")
+            # Grab the current sensor average, and check if it's less than 10% of agent control current average
+            try:
+                if agent_manager.compare_average_against_control_average(agent_manager.sensor_data[average_key],
+                                                                         agent_manager.sensor_data['SensorC_average']):
+                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
+                    # TODO Not sending messages to weather agent
+                    await self.send(weather_request)
+            except KeyError:
+                print("Sensor Control isn't filled yet")
 
     class ReceiveMessageSensor(CyclicBehaviour):
         def __init__(self, name):
