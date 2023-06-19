@@ -24,3 +24,6 @@ agents:
     agent_control:
         resource: ac
         file: agent_sensor_c.py
+    agent_drones:
+        resource: ad
+        file: agent_drones.py
