@@ -36,6 +36,7 @@ class agent_manager(Agent):
             return True, percentage_difference, priority
         elif value > average:
             print(f"The value is {percentage_difference:.2f}% greater than the average.")
+            #TODO maybe check control here
         else:
             print("The value is equal to the average.")
 
