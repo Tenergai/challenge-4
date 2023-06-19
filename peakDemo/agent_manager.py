@@ -52,10 +52,10 @@ class agent_manager(Agent):
         return sensor_name, sensor_value, average_key
 
     @staticmethod
-    def prepare_message_to_weather_agent(sensor_name, agent_domain):
+    def prepare_message_to_weather_agent(sensor_name, agent_domain, priority):
         print(f"{sensor_name} - producing less than expected!")
         weather_request = Message(to=f"agent_weather@{agent_domain}/aw")
-        weather_request.body = f"AgentManager-Request,SensorName-{sensor_name}"
+        weather_request.body = f"AgentManager-Request,SensorName-{sensor_name},Priority-{priority}"
         weather_request.set_metadata("performative", "inform")
         return weather_request
 

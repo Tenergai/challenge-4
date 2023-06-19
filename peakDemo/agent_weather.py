@@ -22,6 +22,7 @@ class agent_weather(Agent):
                 print(f"Weather - {msg.sender} sent me a message: '{msg.body}")
                 split_values = msg.body.split(',')
                 fault_sensor = split_values[1].split("-")[1]
+                priority = split_values[2].split("-")[1]
                 print("fault sensor: ", fault_sensor)
                 weather_report = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                 weather_report.set_metadata("performative", "inform")
@@ -40,7 +41,8 @@ class agent_weather(Agent):
                     'HourlyPrecipMM': int(line['hourly_precipMM']),
                     'dailyrainMM': int(line['daily_rainMM']),
                     'SolarRadiationWatts_m2': int(line['solar_radiation_Watts_m2']),
-                    'sensor_at_fault': fault_sensor
+                    'sensor_at_fault': fault_sensor,
+                    'priority': priority
                 }
                 self.agent.last_index += 1
                 weather_report.body = json.dumps(weather_data)
