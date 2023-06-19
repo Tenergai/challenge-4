@@ -19,17 +19,27 @@ class agent_manager(Agent):
         return value < threshold
 
     @staticmethod
+    def get_priority_from_percentage_difference(percentage_difference):
+        if percentage_difference < 10:
+            return 0
+        else:
+            return int(percentage_difference // 10) * 10
+
+    @staticmethod
     def compare_average_against_control_average(value, average):
+        priority = 0
         percentage_difference = abs((value - average) / average) * 100
         print("Value: ", value, " Average: ", average, " Difference: ", percentage_difference)
         if value < average:
             print(f"The value is {percentage_difference:.2f}% less than the average.")
+            priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
+            return True, percentage_difference, priority
         elif value > average:
             print(f"The value is {percentage_difference:.2f}% greater than the average.")
         else:
             print("The value is equal to the average.")
 
-        return percentage_difference
+        return False, percentage_difference, priority
 
     @staticmethod
     def update_values(sensor_name, sensor_value):
@@ -77,17 +87,20 @@ class agent_manager(Agent):
         print(f"{sensor_name} - {msg.sender} sent me a message: '{msg.body}'")
         sensor_name, sensor_value, average_key = agent_manager.treat_receive_message_from_sensor(msg)
         agent_manager.update_values(sensor_name, sensor_value)
-        if not msg.sender == "agent_control@mas.gecad.isep.ipp.pt/ac":
-            print("Sender: ", msg.sender, " sender: ", "agent_control@mas.gecad.isep.ipp.pt/ac")
-            # Grab the current sensor average, and check if it's less than 10% of agent control current average
+        if not str(msg.sender).strip() == "agent_control@mas.gecad.isep.ipp.pt/ac":
+            # Grab the current sensor average, and check percentage difference against agent control current average
             try:
-                if agent_manager.compare_average_against_control_average(agent_manager.sensor_data[average_key],
-                                                                         agent_manager.sensor_data['SensorC_average']):
+                # TODO Send priority to weather agent aswell
+                perform_operation, percentage_difference, priority = agent_manager.compare_average_against_control_average(agent_manager.sensor_data[average_key],agent_manager.sensor_data['SensorC_average'])
+                if perform_operation:
                     weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
+
                     # TODO Not sending messages to weather agent
                     await self.send(weather_request)
             except KeyError:
                 print("Sensor Control isn't filled yet")
+        else:
+            print("Message was sent by control: ", msg.sender)
 
     class ReceiveMessageSensor(CyclicBehaviour):
         def __init__(self, name):
@@ -146,7 +159,7 @@ class agent_manager(Agent):
                 agent_manager.weather_data = data_dict
                 # print(data_dict)
                 sensor_at_fault = data_dict["sensor_at_fault"]
-                self.drone_management(data_dict, sensor_at_fault)
+                await self.drone_management(data_dict, sensor_at_fault)
             else:
                 print("Weather - Did not receive any message from Agent Weather after 10 seconds")
 
