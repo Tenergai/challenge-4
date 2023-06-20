@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+    <!-- global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    
+    <!-- robots section -->
+    <include>
+	    <uri>model://turtlebot3_burger</uri>
+	    <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <!--
+    <include>
+        <uri>model://flash_light</uri>
+        <pose>0.0 1.0 0.0 0.0 0.0</pose>
+    </include>
+    -->
+    
+    <!-- Solar panel Section -->
+    <!-- Section 1 -->
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel1_section1</name>
+        <pose>2.0 1.25 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel2_section1</name>
+        <pose>2.0 2.95 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <!-- Section 2 -->
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel1_section2</name>
+        <pose>3.5 1.25 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel2_section2</name>
+        <pose>3.5 2.95 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <!--Section 3 -->
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel1_section3</name>
+        <pose>2.0 -1.25 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel2_section3</name>
+        <pose>2.0 -2.95 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <!--Section 4 -->
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel1_section4</name>
+        <pose>3.5 -1.25 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    <include>
+        <uri>model://solar_panel</uri>
+        <name>panel2_section4</name>
+        <pose>3.5 -2.95 0.0 0.0 0.0 0.0</pose>
+    </include>
+    
+    
+  </world>
+</sdf>
