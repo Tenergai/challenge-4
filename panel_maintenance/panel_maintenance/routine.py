@@ -47,15 +47,14 @@ class Routine(Node):
 
         # Initialization
         self.navigation = Navigator(
-            self.vel_publisher,
-            self.odom_subscriber,
-            self.laser_subscriber
+            self.vel_publisher
         )
         
         # no waypoint to begin with
         # in waiting state
-        self.waypoints = iter([[0.0, 0.0]])
-        self.current_waypoint = next(self.waypoints)
+        self.waypoints = [[0.0, 0.0]]
+        self.current_waypoint = self.waypoints[0]
+        # context by default begins in waiting
         self.robot_context = RobotContext()
 
         # Create timers to check collisions or alignement
@@ -76,11 +75,12 @@ class Routine(Node):
 
     def odom_callback(self, msg: Odometry):
         print("Odom callback cycle")
-        time.sleep(1)
+        time.sleep(1/10)
         
         # verify state
         routine_node = handle_state(
-            self.get_routine_info()
+            self.get_routine_info(),
+            msg
         )
         self.set_routine_info(routine_node)
 
@@ -89,6 +89,7 @@ class Routine(Node):
 
     def stop(self):
         self.navigation.set_vel(0.0, 0.0)
+        self.navigation.set_angvel(0.0)
 
 def main(args=None):
     rclpy.init(args=args)
