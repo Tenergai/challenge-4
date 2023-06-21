@@ -4,12 +4,40 @@ from peak import Agent, CyclicBehaviour, Message
 from spade.template import Template
 import pandas as pd
 import json
+from datetime import datetime
 class agent_weather(Agent):
     def __init__(self, jid: JID, cid: int = 0, verify_security: bool = False):
         super().__init__(jid, cid, verify_security)
         self.meteorologia = pd.read_csv("dataset-final.csv")
         self.last_index = 0
 
+    def get_meteorology(self,fault_sensor,priority):
+        now_hour = datetime.now().hour
+        
+        line = self.meteorologia.iloc[self.last_index]
+        while now_hour != int(line['hour']):
+            self.last_index += 1
+            line = self.meteorologia.iloc[self.last_index]
+
+        weather_data = {
+            'DateTime': int(line['hour']),
+            'Generated power': int(line['generated_power']),
+            'TemperatureC': int(line['temperatureC']),
+            'DewpointC': int(line['dewpointC']),
+            'PressurehPa': int(line['pressurehPa']),
+            'WindDirectionDegrees': int(line['wind_direction_degrees']),
+            'WindSpeedKMH': int(line['wind_speed_KMH']),
+            'WindSpeedGustKMH': int(line['wind_speed_gustKMH']),
+            'Humidity': int(line['Humidity']),
+            'HourlyPrecipMM': int(line['hourly_precipMM']),
+            'dailyrainMM': int(line['daily_rainMM']),
+            'SolarRadiationWatts_m2': int(line['solar_radiation_Watts_m2']),
+            'sensor_at_fault': fault_sensor,
+            'priority': priority
+        }
+        self.last_index += 1
+        return weather_data
+        
     class ReceiveMessage(CyclicBehaviour):
         def __init__(self, agent):
             super().__init__()
@@ -27,24 +55,7 @@ class agent_weather(Agent):
                 weather_report = Message(to=f"agent_manager@{self.agent.jid.domain}/am")
                 weather_report.set_metadata("performative", "inform")
                 
-                line = self.agent.meteorologia.iloc[self.agent.last_index]
-                weather_data = {
-                    'DateTime': int(line['hour']),
-                    'Generated power': int(line['generated_power']),
-                    'TemperatureC': int(line['temperatureC']),
-                    'DewpointC': int(line['dewpointC']),
-                    'PressurehPa': int(line['pressurehPa']),
-                    'WindDirectionDegrees': int(line['wind_direction_degrees']),
-                    'WindSpeedKMH': int(line['wind_speed_KMH']),
-                    'WindSpeedGustKMH': int(line['wind_speed_gustKMH']),
-                    'Humidity': int(line['Humidity']),
-                    'HourlyPrecipMM': int(line['hourly_precipMM']),
-                    'dailyrainMM': int(line['daily_rainMM']),
-                    'SolarRadiationWatts_m2': int(line['solar_radiation_Watts_m2']),
-                    'sensor_at_fault': fault_sensor,
-                    'priority': priority
-                }
-                self.agent.last_index += 1
+                weather_data = self.agent.get_meteorology(fault_sensor,priority)
                 weather_report.body = json.dumps(weather_data)
                 await self.send(weather_report)
                 
