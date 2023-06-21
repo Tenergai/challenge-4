@@ -23,7 +23,7 @@ class agent_manager(Agent):
         if percentage_difference < 10:
             return 0
         else:
-            return int(percentage_difference // 10) * 10
+            return int(percentage_difference // 10)
 
     @staticmethod
     def compare_average_against_control_average(value, average):
@@ -33,10 +33,12 @@ class agent_manager(Agent):
         if value < average:
             print(f"The value is {percentage_difference:.2f}% less than the average.")
             priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
-            return True, percentage_difference, priority
+            return True, False, percentage_difference, priority
         elif value > average:
             print(f"The value is {percentage_difference:.2f}% greater than the average.")
-            #TODO maybe check control here
+            # If value is greater than average, we're going to check control sensor
+            priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
+            return True, True, percentage_difference, priority
         else:
             print("The value is equal to the average.")
 
@@ -91,12 +93,14 @@ class agent_manager(Agent):
         if not str(msg.sender).strip() == "agent_control@mas.gecad.isep.ipp.pt/ac":
             # Grab the current sensor average, and check percentage difference against agent control current average
             try:
-                # TODO Send priority to weather agent aswell
-                perform_operation, percentage_difference, priority = agent_manager.compare_average_against_control_average(agent_manager.sensor_data[average_key],agent_manager.sensor_data['SensorC_average'])
+                perform_operation, check_control, percentage_difference, priority = agent_manager.compare_average_against_control_average(
+                    agent_manager.sensor_data[average_key], agent_manager.sensor_data['SensorC_average'])
                 if perform_operation:
-                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain)
+                    if check_control:
+                        sensor_name = "SensorC"
+                    weather_request = agent_manager.prepare_message_to_weather_agent(sensor_name, self.agent.jid.domain,
+                                                                                     priority)
 
-                    # TODO Not sending messages to weather agent
                     await self.send(weather_request)
             except KeyError:
                 print("Sensor Control isn't filled yet")
@@ -140,12 +144,12 @@ class agent_manager(Agent):
 
             return random.random() < 0.75
 
-        async def drone_management(self, weather_data, sensor_at_fault):
+        async def drone_management(self, weather_data, sensor_at_fault, priority):
             if self.verify_weather_is_good(weather_data):
                 print(f"Weather - Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
                 drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
                 drone_message.set_metadata("performative", "inform")
-                drone_message.body = f"Check-{sensor_at_fault}"
+                drone_message.body = f"Check-{sensor_at_fault},Priority-{priority}"
                 await self.send()
                 return True
             else:
@@ -160,7 +164,8 @@ class agent_manager(Agent):
                 agent_manager.weather_data = data_dict
                 # print(data_dict)
                 sensor_at_fault = data_dict["sensor_at_fault"]
-                await self.drone_management(data_dict, sensor_at_fault)
+                priority = data_dict["priority"]
+                await self.drone_management(data_dict, sensor_at_fault, priority)
             else:
                 print("Weather - Did not receive any message from Agent Weather after 10 seconds")
 
