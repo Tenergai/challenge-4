@@ -135,14 +135,26 @@ class agent_manager(Agent):
                 print("SensorControl - Did not received any message after 10 seconds")
 
     class ReceiveMessageWeatherAgent(CyclicBehaviour):
-        # TODO QUAL É O BOM TEMPO
-        # Finish this method
+
         def verify_weather_is_good(self, weather_data):
             temperature_c = float(weather_data["TemperatureC"])
             solar_radiation_m2 = float(weather_data["SolarRadiationWatts_m2"])
+            hour = int(weather_data["DateTime"])
             print(f"Weather - Temperature: {temperature_c} Solar Radiation: {solar_radiation_m2}")
 
-            return random.random() < 0.75
+            if temperature_c > 25.0:
+                # https://www.eco-greenenergy.com/temperature-coefficient-of-solar-pv-module/#:~:text=Most%20solar%20PV%20modules%20have,%2D0.5%25%20%2F%20%C2%B0C.
+                print(
+                    f"Weather - Weather is currently {temperature_c}C, It's {temperature_c - 25.0} above 25 degrees, which will lower eneryg production according to the PV's coefficient")
+                return False
+            elif hour >= 21 or hour < 7:
+                print(f"Weather - Current hour is {hour}. Due to nightime, EV generation has reduced.")
+                return False
+            elif solar_radiation_m2 < 1:
+                print(f"Weather - Solar radiation at {solar_radiation_m2}w/m2. Impacting EV generation.")
+                return False
+            else:
+                return True
 
         async def drone_management(self, weather_data, sensor_at_fault, priority):
             if self.verify_weather_is_good(weather_data):
@@ -150,7 +162,7 @@ class agent_manager(Agent):
                 drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
                 drone_message.set_metadata("performative", "inform")
                 drone_message.body = f"Check-{sensor_at_fault},Priority-{priority}"
-                await self.send()
+                await self.send(drone_message)
                 return True
             else:
                 print(f"Weather - Attributing bad performance of {sensor_at_fault} to bad weather conditions")
