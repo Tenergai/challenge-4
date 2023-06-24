@@ -16,6 +16,8 @@ import sys
 sys.path.append("./src/panel_maintenance/panel_maintenance/utils/")
 from navigate import Navigator
 
+last_reading = None
+
 # first point is always the entrance to the section
 PANEL_DIM: float = [1.7, 1.0]
 ROW1: float = 2.0 - PANEL_DIM[0]/2
@@ -189,14 +191,13 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
         client.on_message = on_message
         client.connect('broker.emqx.io', 1883)
         client.subscribe("anomaly/drone")
-        last_reading = None
         routine_node.navigation.set_angvel(0.0)
         routine_node.navigation.set_vel(0.0, 0.0)
         print("Waiting for Anomaly...")
         while routine_node.robot_context._state == RobotStateLevel.WAITING:
             print(".", end="")
             client.loop()
-            print("last_reading",last_reading)
+            print("last_reading", last_reading)
             time.sleep(10)
             if last_reading != None:
                 waypoints = get_waypoint(WAYPOINTS)
