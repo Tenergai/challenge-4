@@ -197,7 +197,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
             print(".", end="")
             client.loop()
             print(last_reading)
-            if last_reading is not None:
+            if last_reading != None:
                 waypoints = get_waypoint(WAYPOINTS)
                 
                 section = None
@@ -205,7 +205,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
                     if last_reading == waypoint:
                         section = waypoint
                         break
-
+                print("section",section)
                 if section != None:
                     print("")
                     print("Anomaly reported at a section with waypoints: ", waypoints)
