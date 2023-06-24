@@ -3,7 +3,7 @@ import time
 import math
 import random
 from paho.mqtt import client as mqtt_client
-from panel_maintenance.utils import sensorSubscriber
+from utils import sensorSubscriber
 
 from dataclasses import dataclass
 from enum import Enum
