@@ -1,4 +1,4 @@
 #!/bin/bash
 
 rm logs/*
-peak start peakDemo/masRafa.yaml
+peak start peakDemo/mas.yaml

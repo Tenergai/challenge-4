@@ -1,6 +1,9 @@
 import random
 import time
 import math
+import random
+from paho.mqtt import client as mqtt_client
+from panel_maintenance.utils import sensorSubscriber
 
 from dataclasses import dataclass
 from enum import Enum
@@ -169,22 +172,31 @@ def handle_state(
         print("Invalid State Input!")
 
     return routine_node
-        
 
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload.decode("utf-8")))
+    global last_reading
+    last_reading = str(msg.payload.decode("utf-8"))
+    
 def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> RoutineInfo:
     _, _, yaw = to_euler_angles(orientation)
     # angle presicion
     if abs(yaw) > DA:
         print("Orienting towards solar farm.")
     else:
+        client = mqtt_client.Client()
+        client.on_connect = sensorSubscriber.on_connect
+        client.on_message = on_message
+        client.connect('broker.emqx.io', 1883)
+        client.subscribe("anomaly/drone")
+        last_reading = None
         routine_node.navigation.set_angvel(0.0)
         routine_node.navigation.set_vel(0.0, 0.0)
         print("Waiting for Anomaly...")
         while routine_node.robot_context._state == RobotStateLevel.WAITING:
             print(".", end="")
-            time.sleep(1)
-            flip_coin = random.random()
-            if flip_coin < 0.1:
+            client.loop()
+            if last_reading is not None:
                 waypoints = get_waypoint(WAYPOINTS)
 
                 print("")
