@@ -196,7 +196,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
         while routine_node.robot_context._state == RobotStateLevel.WAITING:
             print(".", end="")
             client.loop()
-            print(last_reading)
+            print("last_reading",last_reading)
             time.sleep(10)
             if last_reading != None:
                 waypoints = get_waypoint(WAYPOINTS)
