@@ -4,11 +4,10 @@ from spade.template import Template
 import json
 import random
 
-
 class agent_manager(Agent):
     weather_data = dict()
     sensor_data = dict()
-
+    sim = True
     # Calculates the new average when given the new value added
     @staticmethod
     def calculate_running_average(new_value, current_average, count):
@@ -193,7 +192,8 @@ class agent_manager(Agent):
                 return True
 
         async def drone_management(self, weather_data, sensor_at_fault, priority):
-            if self.verify_weather_is_good(weather_data) or True:
+            if self.verify_weather_is_good(weather_data) or agent_manager.sim:
+                agent_manager.sim = False
                 print(f"Weather - Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
                 drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
                 drone_message.set_metadata("performative", "inform")

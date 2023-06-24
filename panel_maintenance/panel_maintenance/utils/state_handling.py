@@ -206,6 +206,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
                         section = waypoint
                         break
                 print("section",section)
+                time.sleep(10)
                 if section != None:
                     print("")
                     print("Anomaly reported at a section with waypoints: ", waypoints)

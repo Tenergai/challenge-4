@@ -72,6 +72,8 @@ class agent_drones(Agent):
                     publisher.run(agent_drones.client,"section2_1")
                 elif sensor == "Sensor2":
                     publisher.run(agent_drones.client,"section2_2")
+                
+                sensor = None
             else:
                 print("Drones", "- Did not received any message after 10 seconds")
 
