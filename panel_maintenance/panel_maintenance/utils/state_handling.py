@@ -205,6 +205,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
                 
                 section = None
                 for waypoint in waypoints:
+                    print("waypoint", waypoint)
                     if last_reading == waypoint:
                         section = waypoint
                         break
