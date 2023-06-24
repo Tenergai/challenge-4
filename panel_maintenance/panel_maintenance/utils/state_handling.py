@@ -197,6 +197,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
             print(".", end="")
             client.loop()
             print(last_reading)
+            time.sleep(10)
             if last_reading != None:
                 waypoints = get_waypoint(WAYPOINTS)
                 
