@@ -198,24 +198,17 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
         while routine_node.robot_context._state == RobotStateLevel.WAITING:
             print(".", end="")
             client.loop()
-            print("last_reading", last_reading)
-            time.sleep(10)
+
             if last_reading != None:
-                waypoints = get_waypoint(WAYPOINTS)
+                waypoints = WAYPOINTS[last_reading]
+                print("last_reading", last_reading,"current",waypoints)
                 
-                section = None
-                for waypoint in list(WAYPOINTS.keys()):
-                    print("waypoint", waypoint)
-                    if last_reading == waypoint:
-                        section = waypoint
-                        break
-                print("section",section)
                 time.sleep(10)
-                if section != None:
-                    print("")
-                    print("Anomaly reported at a section with waypoints: ", waypoints)
-                    routine_node.waypoints = waypoints
-                    routine_node.current_waypoint = last_reading
+                
+                print("")
+                print("Anomaly reported at a section with waypoints: ", waypoints)
+                routine_node.waypoints = waypoints
+                routine_node.current_waypoint = routine_node.waypoints[0]
                     routine_node.robot_context.transition_to(
                         RobotStateLevel.GOING_TO,
                         routine_node.navigation
