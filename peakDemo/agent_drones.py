@@ -47,8 +47,8 @@ class MQTTPublisher:
             # if msg_count > 5:
             #     break
 
-    def run(self, client):
-        self.publish(client)
+    def run(self, client, msg):
+        self.publish(client, msg)
         client.loop_stop()
 
 class agent_drones(Agent):    
@@ -57,12 +57,12 @@ class agent_drones(Agent):
         
     class ReceiveMessageFromManager(CyclicBehaviour):
         async def run(self):
-            msg = await  self.receive(10)
+            msg = await self.receive(10)
             if msg:
                 print(msg.body)
-                publisher = MQTTPublisher(agent_drones.client_id, ["anomaly/drone"])
-                
                 sensor = msg.body.split(',')[0].split('-')[1]
+                print(sensor)
+                publisher = MQTTPublisher(agent_drones.client_id, "anomaly/drone")
                 
                 if sensor == "Sensor1":
                     publisher.run(agent_drones.client,"section1_1")

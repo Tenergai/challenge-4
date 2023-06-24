@@ -193,7 +193,7 @@ class agent_manager(Agent):
                 return True
 
         async def drone_management(self, weather_data, sensor_at_fault, priority):
-            if self.verify_weather_is_good(weather_data) or TrueF:
+            if self.verify_weather_is_good(weather_data) or True:
                 print(f"Weather - Weather is good, I'm sending a message to drone agent to check {sensor_at_fault}.")
                 drone_message = Message(to=f"agent_drones@{self.agent.jid.domain}/ad")
                 drone_message.set_metadata("performative", "inform")

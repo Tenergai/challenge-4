@@ -199,15 +199,26 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
             print(last_reading)
             if last_reading is not None:
                 waypoints = get_waypoint(WAYPOINTS)
+                
+                section = None
+                for waypoint in waypoints:
+                    if last_reading == waypoint:
+                        section = waypoint
+                        break
 
-                print("")
-                print("Anomaly reported at a section with waypoints: ", waypoints)
-                routine_node.waypoints = waypoints
-                routine_node.current_waypoint = routine_node.waypoints[0]
-                routine_node.robot_context.transition_to(
-                    RobotStateLevel.GOING_TO,
-                    routine_node.navigation
-                )
+                if section != None:
+                    print("")
+                    print("Anomaly reported at a section with waypoints: ", waypoints)
+                    routine_node.waypoints = waypoints
+                    routine_node.current_waypoint = last_reading
+                    routine_node.robot_context.transition_to(
+                        RobotStateLevel.GOING_TO,
+                        routine_node.navigation
+                    )
+                else:
+                    print("No section identified")
+
+                last_reading = None
 
     return routine_node
 
