@@ -193,6 +193,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
         client.subscribe("anomaly/drone")
         routine_node.navigation.set_angvel(0.0)
         routine_node.navigation.set_vel(0.0, 0.0)
+        global last_reading
         print("Waiting for Anomaly...")
         while routine_node.robot_context._state == RobotStateLevel.WAITING:
             print(".", end="")
