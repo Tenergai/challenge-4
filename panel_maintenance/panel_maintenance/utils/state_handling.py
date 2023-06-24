@@ -204,7 +204,7 @@ def handle_waiting(routine_node: RoutineInfo, orientation: Quaternion) -> Routin
                 waypoints = get_waypoint(WAYPOINTS)
                 
                 section = None
-                for waypoint in waypoints:
+                for waypoint in list(WAYPOINTS.keys()):
                     print("waypoint", waypoint)
                     if last_reading == waypoint:
                         section = waypoint
