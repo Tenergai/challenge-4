@@ -37,19 +37,19 @@ class agent_manager(Agent):
         priority = 0
         percentage_difference = abs((value - average) / average) * 100
         print("Value: ", value, " Average: ", average, " Difference: ", percentage_difference)
-        if value < average:
+        if percentage_difference > 20:
             print(f"The value is {percentage_difference:.2f}% less than the average.")
             priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
             return True, False, percentage_difference, priority
-        elif value > average:
-            print(f"The value is {percentage_difference:.2f}% greater than the average.")
-            # If value is greater than average, we're going to check control sensor
-            priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
-            return True, True, percentage_difference, priority
+        #elif value > average:
+        #    print(f"The value is {percentage_difference:.2f}% greater than the average.")
+        #    # If value is greater than average, we're going to check control sensor
+        #    priority = agent_manager.get_priority_from_percentage_difference(percentage_difference)
+        #    return True, True, percentage_difference, priority
         else:
-            print("The value is equal to the average.")
+            print("The value is between the average.")
 
-        return False, percentage_difference, priority
+        return False, False, percentage_difference, priority
 
     # Method that updates the values in the dictionary
     # Dictionary will have a list of the various info from the sensors

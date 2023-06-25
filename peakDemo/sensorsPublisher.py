@@ -2,7 +2,7 @@
 
 import random
 import time
-
+from datetime import datetime, timedelta
 from paho.mqtt import client as mqtt_client
 import concurrent.futures
 from threading import Thread
@@ -30,13 +30,18 @@ class MQTTPublisher:
     def __init__(self, client_id, topic):
         self.client_id = client_id
         self.topic = topic
+        self.datetime_start = datetime.now()
 
     def publish(self, client):
         #comentar esta linha
         # msg_count = 1
         while True:
             time.sleep(1)
-            report = str(random.randint(1000,5000))
+            report = str(random.randint(4000,5000))
+
+            if self.topic == "report/agent2" and datetime.now() > self.datetime_start + timedelta(minutes=1):
+                report = '0'
+
             msg = f"messages: {report}"
             result = client.publish(self.topic, report)
             # result: [0, 1]
