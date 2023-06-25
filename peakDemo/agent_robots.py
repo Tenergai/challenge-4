@@ -51,7 +51,7 @@ class MQTTPublisher:
         self.publish(client, msg)
         client.loop_stop()
 
-class agent_drones(Agent):    
+class agent_robots(Agent):    
     client_id = client_id_base + str(random.randint(0, 1000))
     client = connect_mqtt(client_id)
         
@@ -62,28 +62,28 @@ class agent_drones(Agent):
                 print(msg.body)
                 sensor = msg.body.split(',')[0].split('-')[1]
                 print(sensor)
-                publisher = MQTTPublisher(agent_drones.client_id, "anomaly/drone")
+                publisher = MQTTPublisher(agent_robots.client_id, "anomaly/drone")
                 
                 if sensor == "Sensor1":
-                    publisher.run(agent_drones.client,"section1_1")
+                    publisher.run(agent_robots.client,"section1_1")
                 elif sensor == "Sensor3":
-                    publisher.run(agent_drones.client,"section1_2")
+                    publisher.run(agent_robots.client,"section1_2")
                 elif sensor == "SensorC":
-                    publisher.run(agent_drones.client,"section2_1")
+                    publisher.run(agent_robots.client,"section2_1")
                 elif sensor == "Sensor2":
-                    publisher.run(agent_drones.client,"section2_2")
+                    publisher.run(agent_robots.client,"section2_2")
                 
                 sensor = None
             else:
-                print("Drones", "- Did not received any message after 10 seconds")
+                print("Robots", "- Did not received any message after 10 seconds")
 
     async def setup(self):
         domain = "mas.gecad.isep.ipp.pt"
         template = Template()
-        template.to = f"agent_drones@{domain}/ad"
+        template.to = f"agent_robots@{domain}/ar"
         template.sender = f"agent_manager@{domain}/am"
         template.set_metadata("performative", "inform")
         behavior = self.ReceiveMessageFromManager()
         self.add_behaviour(behavior, template)
         
-        agent_drones.client.loop_start()
+        agent_robots.client.loop_start()
